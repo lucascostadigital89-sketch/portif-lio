@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistente Virtual Inteligente de RH</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .device-frame {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    width: 420px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  /* HEADER */
+  .chat-header {
+    background: #E8460A;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    color: #fff;
+    font-size: 20px;
+    cursor: default;
+    opacity: 0.85;
+  }
+  .avatar {
+    width: 42px; height: 42px;
+    background: #FFD700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: #7a3a00;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .header-info { flex: 1; }
+  .header-name { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.2px; }
+  .header-status {
+    font-size: 12px; color: #ffd7c0;
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 2px;
+  }
+  .online-dot {
+    width: 7px; height: 7px;
+    background: #FFD700;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .header-logo {
+    text-align: right;
+    line-height: 1.2;
+  }
+  .header-logo .logo-top { font-size: 14px; font-weight: 700; color: #FFD700; letter-spacing: 0.5px; }
+  .header-logo .logo-sub { font-size: 9px; color: #ffd7c0; letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* MESSAGES */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: #f5f0ee;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(232,70,10,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255,215,0,0.05) 0%, transparent 50%);
+  }
+
+  .msg { display: flex; gap: 8px; max-width: 86%; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .msg.bot { align-self: flex-start; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 32px; height: 32px;
+    background: #E8460A;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #fff; font-weight: 700;
+    flex-shrink: 0; margin-top: 2px;
+  }
+
+  .msg-col { display: flex; flex-direction: column; }
+
+  .msg-bubble {
+    padding: 11px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .bot .msg-bubble {
+    background: #fff;
+    color: #2a2a2a;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .user .msg-bubble {
+    background: #E8460A;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 1px 4px rgba(232,70,10,0.3);
+  }
+  .msg-time {
+    font-size: 10px; color: #bbb;
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+  .user .msg-time { text-align: right; }
+
+  .highlight { color: #E8460A; font-weight: 700; }
+  .msg-bubble b { font-weight: 700; }
+
+  /* TYPING */
+  .typing-bubble { display: flex; gap: 5px; align-items: center; padding: 14px 16px; }
+  .typing-bubble span {
+    width: 8px; height: 8px;
+    background: #ccc; border-radius: 50%;
+    animation: bounce 1.3s infinite;
+  }
+  .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); background: #ccc; }
+    40% { transform: translateY(-7px); background: #E8460A; }
+  }
+
+  /* QUICK REPLIES */
+  .quick-replies {
+    display: flex; flex-wrap: wrap; gap: 7px;
+    padding: 10px 14px 6px;
+    background: #f5f0ee;
+    border-top: 1px solid rgba(232,70,10,0.08);
+    flex-shrink: 0;
+  }
+  .qr-btn {
+    background: #fff;
+    border: 1.5px solid #E8460A;
+    color: #E8460A;
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    transition: all 0.15s;
+  }
+  .qr-btn:hover { background: #E8460A; color: #fff; transform: translateY(-1px); }
+
+  /* INPUT */
+  .chat-input-area {
+    padding: 10px 14px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+    color: #333;
+    background: #fafafa;
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus { border-color: #E8460A; background: #fff; }
+  .send-btn {
+    width: 40px; height: 40px;
+    background: #E8460A;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(232,70,10,0.35);
+  }
+  .send-btn:hover { background: #c73a08; transform: scale(1.05); }
+  .send-btn:active { transform: scale(0.96); }
+  .send-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+  /* FOOTER */
+  .chat-footer {
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    padding: 7px;
+    text-align: center;
+    font-size: 10px;
+    color: #bbb;
+    flex-shrink: 0;
+  }
+  .chat-footer span { color: #E8460A; font-weight: 700; }
+
+  /* scrollbar */
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="device-frame">
+
+  <div class="chat-header">
+    <div class="back-btn">&#8592;</div>
+    <div class="avatar">RH</div>
+    <div class="header-info">
+      <div class="header-name">Assistente Virtual de RH</div>
+      <div class="header-status">
+        <span class="online-dot"></span>
+        Online agora · 24h por dia
+      </div>
+    </div>
+    <div class="header-logo">
+      <div class="logo-top">NEXQI</div>
+      <div class="logo-sub">Soluções Inteligentes</div>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="messages"></div>
+
+  <div class="quick-replies" id="quickReplies">
+    <button class="qr-btn" onclick="sendQuick('Saldo de férias')">🏖 Férias</button>
+    <button class="qr-btn" onclick="sendQuick('Dúvida sobre holerite')">📄 Holerite</button>
+    <button class="qr-btn" onclick="sendQuick('Benefícios da empresa')">🎁 Benefícios</button>
+    <button class="qr-btn" onclick="sendQuick('Ponto eletrônico')">🕐 Ponto</button>
+    <button class="qr-btn" onclick="sendQuick('Documentos para admissão')">📋 Admissão</button>
+    <button class="qr-btn" onclick="sendQuick('Políticas internas')">📜 Políticas</button>
+  </div>
+
+  <div class="chat-input-area">
+    <input class="chat-input" id="userInput" type="text" placeholder="Digite sua dúvida aqui..." />
+    <button class="send-btn" onclick="sendMessage()" title="Enviar">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-footer">
+    Assistente Virtual Inteligente de RH · Protótipo desenvolvido pela <span>Nexqi</span> © 2026
+  </div>
+
+</div>
+
+<script>
+const respostas = {
+  ferias: {
+    palavras: ['férias','ferias','saldo','período agendado','gozo','tirar férias'],
+    texto: 'Seu <span class="highlight">saldo de férias</span> pode ser consultado diretamente pelo portal do colaborador.\n\nInformações importantes:\n• Após 12 meses trabalhados, você tem direito a <b>30 dias</b> de férias.\n• O período de gozo deve ser combinado com seu gestor com ao menos <b>30 dias de antecedência</b>.\n• As férias podem ser parceladas em até 3 períodos (sendo o menor de 14 dias).\n• O pagamento das férias é realizado com <b>2 dias de antecedência</b>.\n\nPrecisa solicitar ou tem dúvida sobre um período específico? 😊'
+  },
+  holerite: {
+    palavras: ['holerite','contracheque','salário','salario','desconto','líquido','liquido','pagamento','recibo'],
+    texto: 'Sobre o seu <span class="highlight">holerite</span>, veja os principais pontos:\n\n• Disponível todo dia <b>25</b> no portal do colaborador.\n• Descontos comuns: INSS, IRRF, vale-transporte e plano de saúde.\n• Dúvida sobre algum valor? Procure o RH com o número da sua <b>matrícula</b> em mãos.\n• Para solicitação de adiantamento salarial, fale com seu gestor até o dia 10.\n\nQual item do holerite gerou dúvida?'
+  },
+  beneficios: {
+    palavras: ['benefício','beneficio','benefícios','plano de saúde','saude','vale','alimentação','alimentacao','convenio','convênio','ticket'],
+    texto: 'Os <span class="highlight">benefícios</span> oferecidos pela empresa incluem:\n\n🍽 <b>Vale-alimentação/refeição</b>\n🏥 <b>Plano de saúde</b>\n🚌 <b>Vale-transporte</b>\n🛡 <b>Seguro de vida</b> em grupo\n💊 <b>Convênio farmácia</b>\n🎓 <b>Convênio educação</b>\n\nPara ativar ou alterar algum benefício, compareça ao RH com RG e CPF.\n\nPrecisa de mais detalhes sobre algum deles?'
+  },
+  ponto: {
+    palavras: ['ponto','eletrônico','eletronico','banco de horas','hora extra','horas extras','registro','ajuste','falta','bateu','bater'],
+    texto: 'Sobre o <span class="highlight">ponto eletrônico</span>:\n\n• Registre na <b>entrada, saída p/ almoço, retorno e saída</b>.\n• Esqueceu de bater? Solicite ajuste ao gestor em até <b>48 horas</b>.\n• <b>Banco de horas:</b> saldo positivo pode ser compensado com aprovação do gestor.\n• Horas extras devem ser autorizadas previamente pelo gestor.\n• Em caso de atestado médico, entregue no RH em até <b>48 horas</b>.\n\nTem alguma situação específica que precisa resolver?'
+  },
+  admissao: {
+    palavras: ['admissão','admissao','documento','documentos','novo colaborador','contrato','integração','integracao','primeiro dia'],
+    texto: 'Para a <span class="highlight">admissão</span>, os documentos necessários são:\n\n📌 RG e CPF (originais + cópia)\n📌 Comprovante de residência (últimos 3 meses)\n📌 Carteira de Trabalho (CTPS)\n📌 PIS/PASEP\n📌 Certidão de nascimento ou casamento\n📌 Comprovante de escolaridade\n📌 Foto 3x4 recente\n📌 Número de conta bancária\n\nEntregue tudo ao RH da unidade no primeiro dia. Dúvida sobre algum documento?'
+  },
+  politicas: {
+    palavras: ['política','politica','norma','regulamento','conduta','uniforme','regra','código'],
+    texto: 'As <span class="highlight">políticas internas</span> da empresa — principais pontos:\n\n• Uso <b>obrigatório</b> de uniforme durante o expediente.\n• Faltas devem ser justificadas em até <b>48 horas</b>.\n• Celular pessoal deve ser mantido no armário durante o trabalho.\n• É proibido o uso de redes sociais pessoais no horário de trabalho.\n• O Código de Conduta completo está disponível no mural e no portal do colaborador.\n\nPosso te ajudar com alguma norma específica?'
+  },
+  saudacao: {
+    palavras: ['oi','olá','ola','bom dia','boa tarde','boa noite','tudo bem','oi tudo'],
+    texto: 'Olá! 😊 Tudo bem sim, obrigado!\n\nSou o <span class="highlight">Assistente Virtual Inteligente de RH</span>, disponível 24h por dia para tirar suas dúvidas sobre férias, holerite, benefícios, ponto eletrônico e muito mais.\n\nComo posso te ajudar hoje?'
+  }
+};
+
+function getTime() {
+  return new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+}
+
+function addMessage(text, isUser) {
+  const messages = document.getElementById('messages');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg ' + (isUser ? 'user' : 'bot');
+
+  if (!isUser) {
+    const av = document.createElement('div');
+    av.className = 'msg-avatar';
+    av.textContent = 'RH';
+    wrapper.appendChild(av);
+  }
+
+  const col = document.createElement('div');
+  col.className = 'msg-col';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  if (isUser) {
+    bubble.textContent = text;
+  } else {
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+  }
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = getTime();
+
+  col.appendChild(bubble);
+  col.appendChild(time);
+  wrapper.appendChild(col);
+  messages.appendChild(wrapper);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping() {
+  const messages = document.getElementById('messages');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'msg bot';
+  wrapper.id = 'typing-indicator';
+
+  const av = document.createElement('div');
+  av.className = 'msg-avatar';
+  av.textContent = 'RH';
+
+  const col = document.createElement('div');
+  col.className = 'msg-col';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = '<div class="typing-bubble"><span></span><span></span><span></span></div>';
+
+  col.appendChild(bubble);
+  wrapper.appendChild(av);
+  wrapper.appendChild(col);
+  messages.appendChild(wrapper);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function getResposta(text) {
+  const lower = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const key in respostas) {
+    const palavras = respostas[key].palavras.map(p =>
+      p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    );
+    if (palavras.some(p => lower.includes(p))) {
+      return respostas[key].texto;
+    }
+  }
+  return 'Entendi sua dúvida! No momento, não tenho essa informação disponível.\n\nVou <span class="highlight">encaminhar para o RH humano</span> que entrará em contato em breve.\n\nVocê também pode:\n📞 Ligar para o RH da sua unidade\n🏢 Comparecer pessoalmente ao setor de RH\n\nPosso te ajudar com outra questão?';
+}
+
+function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  addMessage(text, true);
+  showTyping();
+
+  const delay = 800 + Math.random() * 600;
+  setTimeout(() => {
+    removeTyping();
+    addMessage(getResposta(text), false);
+  }, delay);
+}
+
+function sendQuick(text) {
+  document.getElementById('userInput').value = text;
+  sendMessage();
+}
+
+document.getElementById('userInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') sendMessage();
+});
+
+setTimeout(() => {
+  addMessage('Olá! 👋 Sou o <span class="highlight">Assistente Virtual Inteligente de RH</span>.\n\nEstou aqui para responder suas dúvidas sobre férias, holerite, benefícios, ponto eletrônico e muito mais — <b>24 horas por dia, 7 dias por semana</b>.\n\nComo posso te ajudar hoje?', false);
+}, 400);
+</script>
+</body>
+</html>
